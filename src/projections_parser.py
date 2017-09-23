@@ -18,6 +18,14 @@ def get_sums_of_counting_stats(players_stats):
     return reduce(lambda x, y: 
         { key : float(val) + float(y[key]) for key, val in x.items() if key in constants.COUNTING_STATS }, players_stats)
 
+def get_max(players_stats):
+    return reduce(lambda x, y: 
+        { key : max(float(val), float(y[key])) for key, val in x.items() if key in constants.COUNTING_STATS }, players_stats)
+
+def get_min(players_stats):
+    return reduce(lambda x, y: 
+        { key : min(float(val), float(y[key])) for key, val in x.items() if key in constants.COUNTING_STATS }, players_stats)
+
 def calculate_zscores(pergame_stats):
     num_players = len(pergame_stats)
 
@@ -56,8 +64,10 @@ def parse():
     proj_zscores = calculate_zscores(proj_pergame)
 
     json_helper.dump({ 'count' : len(player_db), 'players' : player_db}, '../data/processed/1_player_db.json')
-    json_helper.dump({ 'count' : len(proj_pergame), 'players' : proj_pergame}, '../data/processed/2_proj_pergame.json')
-    json_helper.dump({ 'count' : len(proj_zscores), 'players' : proj_zscores}, '../data/processed/3_proj_zscores.json')
+    json_helper.dump({ 'count' : len(proj_pergame), 'max' : get_max(proj_pergame),
+        'min' : get_min(proj_pergame), 'players' : proj_pergame}, '../data/processed/2_proj_pergame.json')
+    json_helper.dump({ 'count' : len(proj_zscores), 'max' : get_max(proj_zscores),
+        'min' : get_min(proj_zscores), 'players' : proj_zscores}, '../data/processed/3_proj_zscores.json')
 
 
 if __name__ == '__main__':

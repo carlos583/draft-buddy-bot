@@ -1,6 +1,7 @@
 import constants
 import csv_reader
 import json_helper
+from functools import reduce
 
 not_in_newcomer_stats = ['rank', 'puntv', 'leagv', 'puntplus', 'gp', 'mpg', 'fga', 'fta']
 
@@ -10,6 +11,14 @@ def find(player, player_lookup):
             player_info['found'] = True
             return player_info
     return None
+
+def get_max(players_stats):
+    return reduce(lambda x, y: 
+        { key : max(float(val), float(y[key])) for key, val in x.items() if key in constants.COUNTING_STATS }, players_stats)
+
+def get_min(players_stats):
+    return reduce(lambda x, y: 
+        { key : min(float(val), float(y[key])) for key, val in x.items() if key in constants.COUNTING_STATS }, players_stats)
 
 
 def generate_newcomers_stats(player_lookup):
@@ -59,8 +68,10 @@ def parse():
 
     last_pergame, last_zscores = generate_lastseason_data(rows, player_db)
 
-    json_helper.dump({ 'count' : len(last_pergame), 'players' : last_pergame}, '../data/processed/4_last_pergame.json')
-    json_helper.dump({ 'count' : len(last_zscores), 'players' : last_zscores}, '../data/processed/5_last_zscores.json')
+    json_helper.dump({ 'count' : len(last_pergame), 'max' : get_max(last_pergame),
+        'min' : get_min(last_pergame), 'players' : last_pergame}, '../data/processed/4_last_pergame.json')
+    json_helper.dump({ 'count' : len(last_zscores), 'max' : get_max(last_zscores),
+        'min' : get_min(last_zscores), 'players' : last_zscores}, '../data/processed/5_last_zscores.json')
 
 
 if __name__ == '__main__':
